@@ -323,8 +323,8 @@ pip install flask requests mcp
 
 ## 👤 Author
 
-**Kaida**
-Architecture • BIM Automation • AI Integration
+**Ziad Amr Said**
+Architecture • Frontend • BIM Automation • AI Integration
 
 ---
 
