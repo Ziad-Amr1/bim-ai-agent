@@ -5,6 +5,12 @@ __pycache__/
 # Runtime files
 result.json
 command.json
+report.csv
+last_operation.json
+
+# some files no need to be tracked
+ai_server/mcp_server1.py
+ai_server/run_all.py
 
 # Environment
 .env

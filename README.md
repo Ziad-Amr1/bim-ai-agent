@@ -216,7 +216,7 @@ pip install flask requests mcp
 
 ---
 
-## 🚀 How to Run (Demo Flow)
+## 🚀 How to Run
 
 1. Start Flask server
     ```bash
@@ -249,6 +249,11 @@ pip install flask requests mcp
 
 > **The AI is an intelligent assistant, not a decision-maker.**
 > Execution authority always remains inside Revit and under human control.
+
+### 💡 Note
+⚠️ This project uses a local project root path.
+Please update PROJECT_ROOT in the Revit bridge script
+to match your local directory structure.
 
 ---
 

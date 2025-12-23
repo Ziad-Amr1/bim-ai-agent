@@ -1,22 +1,28 @@
 # ai_server/simple-flask-server.py
+
 from flask import Flask, jsonify, request
 from command_writer import (
     write_count_walls,
-    write_rename_views
+    write_rename_views,
+    write_command
 )
 import os
 import json
 import sys
 from datetime import datetime
 
-# ---------- helpers ----------
+# =====================================================
+# Helpers
+# =====================================================
 
 def log(msg):
-    time = datetime.now().strftime("%H:%M:%S")
-    print(f"[FLASK {time}] {msg}")
+    t = datetime.now().strftime("%H:%M:%S")
+    print(f"[FLASK {t}] {msg}")
     sys.stdout.flush()
 
-# ---------- app ----------
+# =====================================================
+# App
+# =====================================================
 
 app = Flask(__name__)
 
@@ -27,8 +33,11 @@ log("🚀 Flask Server Initializing...")
 log(f"📂 BASE_DIR = {BASE_DIR}")
 log(f"📄 RESULT_FILE = {RESULT_FILE}")
 
-# ---------- endpoints ----------
+# =====================================================
+# Endpoints
+# =====================================================
 
+# ---------- COUNT WALLS ----------
 @app.route("/api/walls/count", methods=["GET"])
 def api_count_walls():
     log("🧱 Endpoint HIT: /api/walls/count")
@@ -45,6 +54,7 @@ def api_count_walls():
         }), 500
 
 
+# ---------- RENAME VIEWS ----------
 @app.route("/api/views/rename", methods=["POST"])
 def api_rename_views():
     log("✏️ Endpoint HIT: /api/views/rename")
@@ -58,7 +68,6 @@ def api_rename_views():
     try:
         success = write_rename_views(old_prefix, new_prefix)
         log(f"✍️ write_rename_views() → {success}")
-
         return jsonify({"command_written": success})
     except Exception as e:
         log(f"❌ Error in rename views: {e}")
@@ -68,6 +77,56 @@ def api_rename_views():
         }), 500
 
 
+# ---------- FLIP DOORS ----------
+@app.route("/api/doors/flip", methods=["POST"])
+def api_flip_doors():
+    log("🚪 Endpoint HIT: /api/doors/flip")
+
+    try:
+        success = write_command({
+            "action": "flip_doors"
+        })
+        log(f"✍️ write_command(flip_doors) → {success}")
+        return jsonify({"command_written": success})
+    except Exception as e:
+        log(f"❌ Error in flip doors: {e}")
+        return jsonify({
+            "command_written": False,
+            "error": str(e)
+        }), 500
+
+
+# ---------- GENERIC COMMAND ----------
+@app.route("/api/command", methods=["POST"])
+def api_generic_command():
+    log("⚙️ Endpoint HIT: /api/command")
+
+    data = request.json or {}
+    log(f"📥 Command payload: {data}")
+
+    if "action" not in data:
+        return jsonify({
+            "command_written": False,
+            "error": "Missing 'action' field"
+        }), 400
+
+    try:
+        success = write_command(data)
+        log(f"✍️ write_command(generic) → {success}")
+
+        return jsonify({
+            "command_written": success,
+            "action": data.get("action")
+        })
+    except Exception as e:
+        log(f"❌ Error in generic command: {e}")
+        return jsonify({
+            "command_written": False,
+            "error": str(e)
+        }), 500
+
+
+# ---------- GET RESULT ----------
 @app.route("/api/result", methods=["GET"])
 def api_get_result():
     log("📤 Endpoint HIT: /api/result")
@@ -85,7 +144,6 @@ def api_get_result():
 
         log("✅ result.json loaded successfully")
         return jsonify(result)
-
     except Exception as e:
         log(f"❌ Error reading result.json: {e}")
         return jsonify({
@@ -94,7 +152,9 @@ def api_get_result():
         }), 500
 
 
-# ---------- run ----------
+# =====================================================
+# Run
+# =====================================================
 
 if __name__ == "__main__":
     log("🟢 Flask Server is RUNNING on http://localhost:5000")
