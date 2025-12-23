@@ -1,5 +1,6 @@
 from mcp.server.fastmcp import FastMCP
 import requests
+import sys
 
 mcp = FastMCP("BIM AI Agent v3")
 
@@ -101,5 +102,5 @@ def get_last_result() -> dict:
 
 
 if __name__ == "__main__":
-    print("🟢 MCP Server is running and ready to receive commands.")
+    print("MCP server started", file=sys.stderr)
     mcp.run()

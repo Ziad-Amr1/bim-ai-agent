@@ -74,7 +74,7 @@ result.json
         ▼
 Claude reads final result
 ```
-### Why this architecture?
+### Why This Architecture?
 
 - Revit API **must run on the UI thread**
 
@@ -82,17 +82,7 @@ Claude reads final result
 
 - User‑triggered execution is required
 
-- This design follows **Revit best practices**.
-
----
-
-## ❓ Why This Architecture?
-
-* Revit API **must run on the UI thread**
-* Background listeners, sockets, or polling inside Revit are unsafe
-* Execution must be explicitly user-triggered
-
-This design strictly follows **Revit API best practices** and professional BIM workflows.
+- This design strictly follows **Revit API best practices** and professional BIM workflows.
 
 ---
 
@@ -137,32 +127,79 @@ This design strictly follows **Revit API best practices** and professional BIM w
 
 ---
 
-## ⚙️ Supported Features
 
-### ✔️ Query / Analysis
+## 🛠️ Available Commands
 
-* Count walls
-* Read model data
-* Generate reports
+The following commands are exposed through the MCP server and can be invoked by the LLM to interact safely with Autodesk Revit.
+All modification commands follow a human-in-the-loop approach and require explicit user confirmation inside Revit before execution.
 
-### ✔️ Controlled Actions (With Approval)
+## 📊 Information & Queries
 
-* Rename views by prefix / suffix
+These commands do not modify the Revit model and are safe to run at any time.
 
-### 🚧 Planned Extensions
+`ping`
+Checks whether the MCP server is running and reachable.
+Useful for validating that the AI–Revit bridge is active.
 
-* Door flip suggestions
-* Door placement recommendations
-* QA/QC and validation checks
+`get_wall_count`
+Returns the total number of wall elements in the current Revit project.
 
----
+`ai_suggestions`
+Requests an AI-based analysis of the model.
+The analysis is executed inside Revit after user confirmation and may return design observations or potential improvement notes.
+(An empty result indicates that no issues were detected or the model is too simple for analysis.)
 
-## 🚫 What the AI Does NOT Do
+`get_last_result`
+Retrieves the result of the most recently executed operation.
+This command is intended for programmatic feedback and verification rather than direct user interaction.
 
-* Modify geometry directly
-* Add or delete elements automatically
-* Run background processes inside Revit
-* Execute commands without user consent
+## ✏️ Model Modifications
+
+These commands do not execute immediately.
+Each request is queued and requires the user to press the AI_Bridge button inside Revit and approve the action.
+
+`rename_views`
+Renames Revit views by replacing an existing name prefix with a new one.
+This allows batch renaming of views in a controlled and predictable manner.
+
+Example:
+Rename views starting with Level → Arc Level
+
+`flip_doors`
+Safely attempts to flip the orientation of door elements.
+The system checks Revit API capabilities and skips doors that cannot be flipped to avoid errors or unintended behavior.
+
+`modify_parameter`
+Modifies a specific parameter of a given element.
+Requires:
+
+Element ID
+
+Parameter name
+
+New value
+
+The operation is executed only after user confirmation inside Revit.
+
+## ↩️ Revert & Recovery
+
+`revert_last`
+Reverts the last successful modification operation, when supported.
+This provides a basic rollback mechanism for safe experimentation.
+
+## 🔐 Safety Model
+
+The AI never modifies the Revit model directly
+
+All changes are:
+
+- Requested by the AI
+
+- Queued through the bridge
+
+- Explicitly reviewed and confirmed by the user inside Revit
+
+- This design prioritizes transparency, control, and model integrity over blind automation.
 
 ---
 
@@ -257,6 +294,11 @@ to match your local directory structure.
 
 ---
 
+### 📺 Demo
+🎥 A short demo video is available on LinkedIn (see post).
+
+---
+
 ## 🇪🇬 الشرح باللغة العربية
 
 ## 📌 فكرة المشروع
@@ -331,6 +373,7 @@ to match your local directory structure.
 **Ziad Amr Said**
 Architecture • Frontend • BIM Automation • AI Integration
 
+Built as part of an academic BIM course and independent experimentation.
 ---
 
 ## 📄 License

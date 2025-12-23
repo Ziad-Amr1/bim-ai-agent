@@ -166,16 +166,26 @@ def handle_flip_doors(_):
 
     t = Transaction(doc, "AI Flip Doors")
     t.Start()
+
     for d in (
         FilteredElementCollector(doc)
         .OfCategory(BuiltInCategory.OST_Doors)
         .WhereElementIsNotElementType()
     ):
         if isinstance(d, FamilyInstance):
-            d.FlipFacingOrientation()
-            flipped.append(d.Id.IntegerValue)
+            # Facing flip
+            if hasattr(d, "flipFacingOrientation"):
+                d.flipFacingOrientation()
+                flipped.append(d.Id.IntegerValue)
+
+            # Hand flip (fallback)
+            elif hasattr(d, "flipHandOrientation"):
+                d.flipHandOrientation()
+                flipped.append(d.Id.IntegerValue)
+
     t.Commit()
 
+    # 🔹 log for revert
     write_json(LOG_FILE, {
         "action": "flip_doors",
         "element_ids": flipped
